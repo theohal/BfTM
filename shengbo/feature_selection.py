@@ -39,22 +39,22 @@ for i in range(len(features_list)-1):
         same_features.append(feature_next)
 
 
-curr_features = list()
-next_features = list()
-rename_features = list()
 len_features = len(features_list)
 i = 0
+name_changed = False
+feature_rename = ""
 while i < (len_features-1):
-    feature_curr = features_list[i]
+    if name_changed:
+        feature_curr = feature_rename
+        name_changed = False
+    else:
+        feature_curr = features_list[i]
     feature_next = features_list[i+1]
     if diff_count(result[feature_curr], result[feature_next]) == 0:
         feature_rename = feature_curr + '-' + feature_next
-        curr_features.append(feature_curr)
-        next_features.append(feature_next)
-        rename_features.append(feature_rename)
+        name_changed = True
+        result.drop(columns=feature_curr, inplace=True)
+        result.rename(columns={feature_next: feature_rename}, inplace=True)
     i += 1
 
-
-for i in range(len(next_features)):
-    # result.drop(columns=curr_features[i], inplace=True)
-    result.rename(columns={next_features[i]: rename_features[i]}, inplace=True)
+result.to_csv('merge_features.csv', index=False)
