@@ -58,3 +58,9 @@ while i < (len_features-1):
     i += 1
 
 result.to_csv('merge_features.csv', index=False)
+
+
+# feature selection
+HER2_data = result[result['Subgroup'] == 'HER2+']
+HR_data = result[result['Subgroup'] == 'HR+']
+TN_data = result[result['Subgroup'] == 'Triple Neg']
