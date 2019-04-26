@@ -1,6 +1,7 @@
 import data_loader
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.feature_selection import RFECV
 from numpy import mean, std # for mean and standard deviations of match performance
 
 ''' Implementing cross-validation as per L.F.A. Wessels et al. paper (Figure 1)
@@ -36,18 +37,31 @@ def train(classifier, dataset, target, random_state):
 
     max_score = 0.0
     optimal_training_fold = None
+    optimal_traintarget_fold = None
 
-    for training_fold, validation_fold in skfold.split(dataset, target):
-        classifier.fit(dataset.iloc[training_fold], target.iloc[training_fold]) # Actual model training done here
-        validation_score = classifier.score(dataset.iloc[validation_fold], target.iloc[validation_fold]) # Trained model applied
+    rfecv = RFECV(estimator=classifier, cv=skfold, scoring='roc_auc') # Recursive Feature Elimination
+
+    for training_fold_ix, validation_fold_ix in skfold.split(dataset, target):
+        # For readability further down
+        training_fold = dataset.iloc[training_fold_ix]
+        traintarget_fold = target.iloc[training_fold_ix]
+        validation_fold = dataset.iloc[validation_fold_ix]
+        validtarget_fold = target.iloc[validation_fold_ix]
+
+        rfecv.fit(training_fold, traintarget_fold) # Feature selection
+        training_fold = rfecv.transform(training_fold) # Keep the best features in training dataset
+
+        classifier.fit(training_fold, traintarget_fold) # Actual model training done here
+        validation_score = classifier.score(validation_fold, validtarget_fold) # Trained model applied
         training_scores.append(validation_score)
 
         if validation_score > max_score:
             max_score = validation_score
             optimal_training_fold = training_fold
+            optimal_traintarget_fold = traintarget_fold
 
     # Train final predictor (Block 3):
-    classifier.fit(dataset.iloc[optimal_training_fold], target.iloc[optimal_training_fold]) # Re-training model with the best training fold
+    classifier.fit(optimal_training_fold, optimal_traintarget_fold) # Re-training model with the best training fold
 
     print("Training scores:", training_scores)
     return training_scores
