@@ -55,8 +55,8 @@ def prepareGridSearchForMLP():
 def runGridSearch(dataset, target, name, classifier):
     print("Running grid search on", name)
 
-    classifier.fit(dataset[:70], target[:70])
-    test_score = classifier.score(dataset[70:100], target[70:100])
+    classifier.fit(dataset[:70], target[:70])   # ~2/3 data split
+    test_score = classifier.score(dataset[70:100], target[70:100])  # ~1/3 data split
 
     print(classifier.cv_results_['mean_test_score'])
     print(classifier.cv_results_['std_test_score'])
@@ -96,16 +96,19 @@ def compareClassifiers(dataset, target):
     for index, result in enumerate(ranked_results, start=1):
         print("#{}: {} (test_score: {}) with parameters {}".format(index, result['name'], result['test_score'], result['parameters']))
 
-    return ranked_results[0]
+    return ranked_results
 
 
 if __name__ == "__main__":
     dataset = data_loader.load_dataset()
     target = data_loader.load_target()
 
-    result = compareClassifiers(dataset, target)
+    comparison_results = compareClassifiers(dataset, target)
+    data_loader.save_comparison_results(comparison_results)
+
+    optimal_classifier = max(comparison_results, key=lambda result: result['test_score'])
 
     print("---------------------------------------------------")
-    print("Optimal classifier: {} with parameters {}".format(result['name'], result['parameters']))
-    print("Test score:", result['test_score'])
+    print("Optimal classifier: {} with parameters {}".format(optimal_classifier['name'], optimal_classifier['parameters']))
+    print("Test score:", optimal_classifier['test_score'])
     print("---------------------------------------------------")
