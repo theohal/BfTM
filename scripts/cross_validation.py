@@ -39,8 +39,9 @@ def calculate_FDR(test, control):
     return significant_features
 
 
-def cross_validation():
+def cross_validation(model, K):
     """
+    In this function, we do cross validation for input model
 
     """
 
