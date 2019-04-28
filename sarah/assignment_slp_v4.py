@@ -58,7 +58,7 @@ def optimiseFeatures(dataset, target):
     for i in range(100):
         print("iteration #", i)
         skfold = StratifiedKFold(n_splits=10, random_state=i)   # Using StratifiedKFold to have a better distribution of subtypes in the split groups
-        rfecv = RFECV(estimator=classifier, cv=skfold) # Recursive Feature Elimination for training the model
+        rfecv = RFECV(estimator=classifier, cv=skfold, n_jobs=-1) # Recursive Feature Elimination for training the model
 
         training_set, test_set, training_labels, test_labels = train_test_split(dataset, target, test_size=0.33, random_state=i)
 
