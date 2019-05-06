@@ -47,7 +47,6 @@ def train(dataset, target, random_state, result_record):
     # To get rid of ConvergenceWarnings (fail to converge) and UserWarnings (n_jobs n/a for liblinear)
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore")
-        tmp_ignore_setting = os.environ["PYTHONWARNINGS"]
         os.environ["PYTHONWARNINGS"] = "ignore" # also subprocesses
 
         gridcv = GridSearchCV(classifier, parameters, iid=False, cv=skfold, n_jobs=-1)
@@ -56,7 +55,7 @@ def train(dataset, target, random_state, result_record):
         rfecv = RFECV(estimator=gridcv.best_estimator_, cv=skfold, n_jobs=-1) # Recursive Feature Elimination for training the model
         rfecv.fit(dataset, target) # Feature selection and model training
 
-        os.environ["PYTHONWARNINGS"] = tmp_ignore_setting #re-enable warnings
+        os.environ["PYTHONWARNINGS"] = "default" #re-enable warnings
 
     # store results in the result record provided as argument to this function
     result_record.update({
@@ -76,7 +75,7 @@ def test(trained_model, dataset, target, result_record):
     test_score = trained_model.score(dataset, target)
 
     print("Testing score:", test_score)
-    result_record.update({'test_score' : curr_testing_score}) # appending test score to the current results dictionary
+    result_record.update({'test_score' : test_score}) # appending test score to the current results dictionary
 
 def optimiseParametersAndFeatures(dataset, target):
     optimisation_results = []
