@@ -6,57 +6,65 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.exceptions import ConvergenceWarning
-from numpy import mean, std # for mean and standard deviations of match performance
+from numpy import mean, std
+
 
 # Try running gridsearch for all of the classifiers!
 def createGridSearchCV(classifier, parameters):
     return GridSearchCV(classifier, parameters, iid=False, cv=StratifiedKFold(n_splits=10))
 
+
 def prepareGridSearchForSVC():
     classifier = SVC()
     parameters = {
-        'kernel' : ('linear', 'poly', 'rbf', 'sigmoid'),
-        #'kernel' : ('linear', 'poly', 'rbf', 'sigmoid', 'precomputed'),
-        'gamma' : (0.01, 0.1, 1, 10, 100),
-        'C' : (0.1, 1, 10, 100, 1000) }
+            'kernel': ('linear', 'poly', 'rbf', 'sigmoid'),
+            # 'kernel': ('linear', 'poly', 'rbf', 'sigmoid', 'precomputed'),
+            'gamma': (0.01, 0.1, 1, 10, 100),
+            'C': (0.1, 1, 10, 100, 1000)}
 
     return createGridSearchCV(classifier, parameters)
+
 
 def prepareGridSearchForLRC():
     classifier = LogisticRegression(multi_class='auto')
     parameters = {
-        'solver' : ('liblinear', 'newton-cg', 'sag', 'saga', 'lbfgs'),
-        'C' : (0.1, 1, 10, 100, 1000) }
+            'solver': ('liblinear', 'newton-cg', 'sag', 'saga', 'lbfgs'),
+            'C': (0.1, 1, 10, 100, 1000)}
 
     return createGridSearchCV(classifier, parameters)
+
 
 def prepareGridSearchForRFC():
     classifier = RandomForestClassifier(n_estimators=100)
     parameters = {
-        'max_features' : ('log2', 'sqrt', 0.2),
-        'n_estimators' : (1, 10, 100, 200, 500, 1000),
-        'min_samples_leaf' : (10, 30, 50, 70, 90),
-        'bootstrap' : ('True', 'False')
+        'max_features': ('log2', 'sqrt', 0.2),
+        'n_estimators': (1, 10, 100, 200, 500, 1000),
+        'min_samples_leaf': (10, 30, 50, 70, 90),
+        'bootstrap': ('True', 'False')
     }
 
     return createGridSearchCV(classifier, parameters)
+
 
 def prepareGridSearchForMLP():
     classifier = MLPClassifier()
     parameters = {
         'hidden_layer_sizes': [(10, 10), (30, 30, 30), (100, 100), (100, 100, 100)],
-        #'solver' : ('adam', 'lbfgs', 'sgd'),       # this makes the run time very long (70+ mins)
+        # 'solver': ('adam', 'lbfgs', 'sgd'),
+        # this makes the run time very long (70+ mins)
         'tol': (1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
         'epsilon': (1e-3, 1e-7, 1e-8, 1e-9, 1e-8)
     }
 
     return createGridSearchCV(classifier, parameters)
 
+
 def runGridSearch(dataset, target, name, classifier):
     print("Running grid search on", name)
-
-    classifier.fit(dataset[:70], target[:70])   # ~2/3 data split
-    test_score = classifier.score(dataset[70:100], target[70:100])  # ~1/3 data split
+    # ~2/3 data split
+    classifier.fit(dataset[:70], target[:70])
+    # ~1/3 data split
+    test_score = classifier.score(dataset[70:100], target[70:100])
 
     print(classifier.cv_results_['mean_test_score'])
     print(classifier.cv_results_['std_test_score'])
@@ -64,12 +72,13 @@ def runGridSearch(dataset, target, name, classifier):
     print("Best training result: {} (index: {})".format(classifier.best_score_, classifier.best_index_))
     print("---------------------------------------------------")
 
-    return {'name' : name,
-            'cv_results' : classifier.cv_results_,
-            'classifier' : classifier.best_estimator_,
-            'parameters' : classifier.best_params_,
-            'max_training_score' : classifier.best_score_,
-            'test_score' : test_score}
+    return {'name': name,
+            'cv_results': classifier.cv_results_,
+            'classifier': classifier.best_estimator_,
+            'parameters': classifier.best_params_,
+            'max_training_score': classifier.best_score_,
+            'test_score': test_score}
+
 
 def compareClassifiers(dataset, target):
     results = []
