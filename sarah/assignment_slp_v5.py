@@ -59,12 +59,13 @@ def train(dataset, target, random_state, result_record):
 
     # store results in the result record provided as argument to this function
     result_record.update({
-        "random_state" : random_state, # appending random_state used to the current results dictionary for reproducibility after analysis
-        "best_params" : gridcv.best_params_, # best classifier parameters (from grid search)
-        "used_number_of_regions" : rfecv.n_features_, # remaining number of regions after elimination
-        "used_regions" : list(dataset.columns[rfecv.support_]), # using indices of used features to print column headers (regions)
-        "all_region_rankings" : list(zip(dataset.columns, rfecv.ranking_)), # significance ranking position per column (region)
-        "training_scores" : list(rfecv.grid_scores_)}) # validation scores per iteration
+        'iteration' : random_state, # appending random_state used to the current results dictionary for reproducibility after analysis
+        'grid_search_cv_results' : gridcv.cv_results_, # detailed results of the grid_search cv
+        'best_params' : gridcv.best_params_, # best classifier parameters (from grid search)
+        'used_number_of_regions' : rfecv.n_features_, # remaining number of regions after elimination
+        'used_regions' : list(dataset.columns[rfecv.support_]), # using indices of used features to print column headers (regions)
+        'all_region_rankings' : list(zip(dataset.columns, rfecv.ranking_)), # significance ranking position per column (region)
+        'refcv_training_scores' : list(rfecv.grid_scores_)}) # validation scores per iteration
 
     # return the trained model
     return rfecv

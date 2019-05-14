@@ -1,4 +1,6 @@
 import pandas as pd
+from numpy import array, int32 
+from numpy.ma import masked_array
 from sklearn.externals import joblib
 
 # list of all files involved
@@ -63,7 +65,7 @@ def save_object_to_file(object, filename):
 
 def load_object_from_file(filename):
     with open(filename, 'r') as file:
-        object = eval(file.read())
+        object = eval(file.read(), globals(), locals())
         return object
 
 
