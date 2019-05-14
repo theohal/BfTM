@@ -15,8 +15,10 @@ optimisation_results_filename = 'results/optimisation.txt'
 region_rankings_filename = 'results/region_rankings.txt'
 iteration_rankings_filename = 'results/iteration_rankings.txt'
 
+
 def prepare_dataset(filename):
-    dataset = pd.read_csv(filename, delimiter='\t') # import original 'call' file
+    # import original 'call' file
+    dataset = pd.read_csv(filename, delimiter='\t')
     # we want to reduce the number of columns by concatenation:
     dataset['Chromosome'] = dataset.apply(lambda row:
         "%d_%d_%d"%(row['Chromosome'], row['Start'], row['End']), axis=1)
@@ -31,10 +33,12 @@ def prepare_dataset(filename):
 
     return dataset
 
+
 def prepare_target(filename):
     target = pd.read_csv(filename, delimiter='\t') # import original 'clinical' file
     target.set_index('Sample', inplace=True)
     return target["Subgroup"]
+
 
 def load_dataset():
     dataset = prepare_dataset(dataset_filename)
