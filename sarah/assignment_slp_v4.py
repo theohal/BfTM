@@ -34,17 +34,10 @@ for 100 iterations:
 def train(rfecv, dataset, target):
     rfecv.fit(dataset, target) # Feature selection and model training
 
-    print("Number of regions used:", rfecv.n_features_) # remaining number of regions after elimination
-    print("Regions used:", dataset.columns[rfecv.support_]) # using indices of used features to print column headers (regions)
-    print("Region rankings:", rfecv.ranking_)   # significance ranking position per column (region)
-    print("Training scores:", rfecv.grid_scores_) # validation scores per iteration
-
-    return {"training_scores" : rfecv.grid_scores_,
-            "training_scores_mean" : mean(rfecv.grid_scores_),
-            "training_scores_std" : std(rfecv.grid_scores_),
-            "region_rankings" : rfecv.ranking_,
-            "used_regions_by_index" : rfecv.support_,
-            "used_regions_by_name" : dataset.columns[rfecv.support_] }
+    return {"used_number_of_regions" : rfecv.n_features_, # remaining number of regions after elimination
+            "used_regions" : list(dataset.columns[rfecv.support_]), # using indices of used features to print column headers (regions)
+            "all_region_rankings" : list(zip(dataset.columns, rfecv.ranking_)), # significance ranking position per column (region)
+            "training_scores" : list(rfecv.grid_scores_) } # validation scores per iteration
 
 # The validation step (Block 5):
 def test(rfecv, dataset, target):
@@ -65,7 +58,7 @@ def optimiseFeatures(dataset, target):
     for i in range(100):
         print("iteration #", i)
         skfold = StratifiedKFold(n_splits=10, random_state=i)   # Using StratifiedKFold to have a better distribution of subtypes in the split groups
-        rfecv = RFECV(estimator=classifier, cv=skfold) # Recursive Feature Elimination for training the model
+        rfecv = RFECV(estimator=classifier, cv=skfold, n_jobs=-1) # Recursive Feature Elimination for training the model
 
         training_set, test_set, training_labels, test_labels = train_test_split(dataset, target, test_size=0.33, random_state=i)
 

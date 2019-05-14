@@ -13,6 +13,7 @@ model_filename = 'model/model.pkl'  # haven't created this yet!
 comparison_results_filename = 'results/comparison.txt'
 optimisation_results_filename = 'results/optimisation.txt'
 region_rankings_filename = 'results/region_rankings.txt'
+iteration_rankings_filename = 'results/iteration_rankings.txt'
 
 def prepare_dataset(filename):
     dataset = pd.read_csv(filename, delimiter='\t') # import original 'call' file
@@ -74,8 +75,16 @@ def save_optimisation_results(results):
 def load_optimisation_results():
     return load_object_from_file(optimisation_results_filename)
 
-def save_region_rankings(rankings_by_region):
-    save_object_to_file(rankings_by_region, region_rankings_filename)
+
+def save_region_rankings(region_rankings):
+    save_object_to_file(region_rankings, region_rankings_filename)
 
 def load_region_rankings():
     return load_object_from_file(region_rankings_filename)
+
+
+def save_iteration_rankings(iteration_rankings):
+    save_object_to_file(iteration_rankings, iteration_rankings_filename)
+
+def load_iteration_rankings():
+    return load_object_from_file(iteration_rankings_filename)
