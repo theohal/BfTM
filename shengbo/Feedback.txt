@@ -1,0 +1,13 @@
+In general: I felt shocked after reading your report, it is an amazing draft report I must say. It also helped me a lot to understand the project.
+
+Context [4]: The biological connection to the research question is clear, and also provided sufficient background, only several tiny problems which I have made comments.
+
+Research question [5]: The research question is good, you made a clear explanation on how to answer it. (Maybe more specific other than Machine Learning)
+
+Methodology [5]: The training/CV scheme is fancy and clear, all methods drawn in the flowchart are explained in the text with a readable and clearly structure.
+
+Contents/Results [5]: You used several metrics to make your results more credible, with literature comparison, you made biological conclusions answering the research question.
+
+Tables/Figures [5]: All figures and tables are explained clearly in the context with a good structure.
+
+All in all, I think you did a lot of work in this project, and the procedure is very organized and clear, people who has no strong background with biology and data science can also easily know how it works step by step. I really do not know what I can help except some small suggestions. I think you deserve a very high score of this draft report.
