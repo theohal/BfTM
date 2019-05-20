@@ -44,6 +44,7 @@ for i in range(0, 100):
     training_scores.append(np.max(curr_results[i]['training_scores']))
     max_test_score.append(curr_results[i]['mean_test_score'].max())
 
+# save file into training_100
 results = pd.DataFrame({'train_score': max_test_score, 'rfecv_score': training_scores, 'test_score': result_record})
 results.to_csv('./output/training_100.csv', index=False)
 
