@@ -11,7 +11,7 @@ from numpy import mean, std
 
 # Try running gridsearch for all of the classifiers!
 def createGridSearchCV(classifier, parameters):
-    return GridSearchCV(classifier, parameters, iid=False, cv=StratifiedKFold(n_splits=10))
+    return GridSearchCV(classifier, parameters, iid=False, cv=StratifiedKFold(n_splits=10), return_train_score=True)
 
 
 def prepareGridSearchForSVC():
@@ -62,21 +62,26 @@ def prepareGridSearchForMLP():
 def runGridSearch(dataset, target, name, classifier):
     print("Running grid search on", name)
     # ~2/3 data split
-    classifier.fit(dataset[:70], target[:70])
+    classifier.fit(dataset[30:100], target[30:100])
     # ~1/3 data split
-    test_score = classifier.score(dataset[70:100], target[70:100])
+    test_score = classifier.score(dataset[:30], target[:30])
 
-    print(classifier.cv_results_['mean_test_score'])
-    print(classifier.cv_results_['std_test_score'])
+    # print(classifier.cv_results_['mean_test_score'])
+    # print(classifier.cv_results_['std_test_score'])
+    #
+    # print("Best training result: {} (index: {})".format(classifier.best_score_, classifier.best_index_))
+    # print("---------------------------------------------------")
 
-    print("Best training result: {} (index: {})".format(classifier.best_score_, classifier.best_index_))
-    print("---------------------------------------------------")
-
+    # return classifier.cv_results_
     return {'name': name,
             'cv_results': classifier.cv_results_,
-            'classifier': classifier.best_estimator_,
-            'parameters': classifier.best_params_,
-            'max_training_score': classifier.best_score_,
+            # 'mean_train_score': classifier.cv_results_['mean_train_score'],
+            # 'mean_test_score': classifier.cv_results_['mean_test_score'],
+            # 'std_train_score': classifier.cv_results_['std_train_score'],
+            # 'std_test_score': classifier.cv_results_['std_test_score'],
+            # 'classifier': classifier.best_estimator_,
+            # 'parameters': classifier.best_params_,
+            # 'max_training_score': classifier.best_score_,
             'test_score': test_score}
 
 
@@ -87,14 +92,14 @@ def compareClassifiers(dataset, target):
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
-        SVC_results = runGridSearch(dataset, target, "SupportVectorClassifier", prepareGridSearchForSVC())
-        results.append(SVC_results)
-
-        RFC_results = runGridSearch(dataset, target, "RandomForestClassifier", prepareGridSearchForRFC())
-        results.append(RFC_results)
-
-        LRC_results = runGridSearch(dataset, target, "LogisticRegressionClassifier", prepareGridSearchForLRC())
-        results.append(LRC_results)
+        # SVC_results = runGridSearch(dataset, target, "SupportVectorClassifier", prepareGridSearchForSVC())
+        # results.append(SVC_results)
+        #
+        # RFC_results = runGridSearch(dataset, target, "RandomForestClassifier", prepareGridSearchForRFC())
+        # results.append(RFC_results)
+        #
+        # LRC_results = runGridSearch(dataset, target, "LogisticRegressionClassifier", prepareGridSearchForLRC())
+        # results.append(LRC_results)
 
         MLPC_results = runGridSearch(dataset, target, "MultiLayerPerceptronClassifier", prepareGridSearchForMLP())
         results.append(MLPC_results)
@@ -103,7 +108,7 @@ def compareClassifiers(dataset, target):
     ranked_results = sorted(results, key=lambda result: result['test_score'], reverse=True)
 
     for index, result in enumerate(ranked_results, start=1):
-        print("#{}: {} (test_score: {}) with parameters {}".format(index, result['name'], result['test_score'], result['parameters']))
+        print("#{}: {} (test_score: {})".format(index, result['name'], result['test_score']))
 
     return ranked_results
 
@@ -113,7 +118,11 @@ if __name__ == "__main__":
     target = data_loader.load_target()
 
     comparison_results = compareClassifiers(dataset, target)
+    comparison_results = compareClassifiers(dataset, target)
     data_loader.save_comparison_results(comparison_results)
+
+
+    comparison_results[0]['cv_results']['mean_test_score'].max()
 
     optimal_classifier = max(comparison_results, key=lambda result: result['test_score'])
 

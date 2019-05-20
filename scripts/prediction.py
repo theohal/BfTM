@@ -3,11 +3,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sn
-%matplotlib inline
+# %matplotlib inline
 from collections import defaultdict
 
 # import original dataset
-df = pd.read_csv('./input/df_sorted_Subgroup.csv')
+df = pd.read_csv('./data/df_sorted_Subgroup.csv')
 # most important features
 features = pd.read_csv('./output/final_features.csv')
 
@@ -24,32 +24,40 @@ df_ft = df[ftl]
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
+# import code and packages
+import data_loader, assignment_slp_v5
+import warnings, os
 
 # regions: 110 in total
 X = df_ft.iloc[:,1:111]
 # labels of the subgroups
 y = df_ft.iloc[:,111]
 
-optimisation_results = assignment_slp_v5.optimiseParametersAndFeatures(X, y)
-data_loader.save_optimisation_results(optimisation_results, 'optimisation_results.txt')
+curr_results, result_record, models = assignment_slp_v5.optimiseParametersAndFeatures(X, y)
+# data_loader.save_optimisation_results(optimisation_results, 'optimisation_results.txt')
 
 # split data in train and test set
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=1)
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=1)
+training_scores = []
+max_test_score = []
+for i in range(0, 100):
+    training_scores.append(np.max(curr_results[i]['training_scores']))
+    max_test_score.append(curr_results[i]['mean_test_score'].max())
 
-# import code and packages
-import data_loader, assignment_slp_v5
-import warnings, os
+results = pd.DataFrame({'train_score': max_test_score, 'rfecv_score': training_scores, 'test_score': result_record})
+results.to_csv('./output/training_100.csv', index=False)
 
-# create an empty dictionary and train the model
-train_few_feature = {}
-trained_model = assignment_slp_v5.train(X_train,y_train,0,train_few_feature)
 
-# test the modeled set and create an empty dictionary
-test_new_feature = {}
-assignment_slp_v5.test(trained_model, X_test, y_test, test_new_feature)
+# # create an empty dictionary and train the model
+# train_few_feature = {}
+# trained_model = assignment_slp_v5.train(X_train,y_train,0,train_few_feature)
+#
+# # test the modeled set and create an empty dictionary
+# test_new_feature = {}
+# assignment_slp_v5.test(trained_model, X_test, y_test, test_new_feature)
 
 # import the validation file
-validation_file = data_loader.prepare_dataset("./input/Validation_call.txt")
+validation_file = data_loader.prepare_dataset("./data/Validation_call.txt")
 
 # remove the sample and the subgroup columns
 ftl.remove('Sample')
@@ -59,9 +67,22 @@ ftl.remove('Subgroup')
 go_validation = validation_file[ftl]
 
 # make predictions
-predictions = trained_model.predict(go_validation)
+pred = pd.DataFrame()
+i = 0
+for rfecv in models:
+    predictions = rfecv.predict(go_validation)
+    pred['iteration'+str(i)] = list(predictions)
+    i = i + 1
+pred = pd.DataFrame(data=pred)
+
+pred.to_csv('./output/predictions_100.csv', index=False)
+
+pred['iteration0'][0]
+count_hr[0] = pred.mode(axis=1)
+
+
 
 # export the predictions to a file: 'predictions.txt'
 import csv
-out_put = pd.DataFrame({'Sample': validation_file.index, 'Subgroup': predictions})
+out_put = pd.DataFrame({'Sample': validation_file.index, 'Subgroup': count_hr[0]})
 out_put.to_csv('./output/predictions.txt', index=None, quotechar='"', sep='\t', quoting=csv.QUOTE_NONNUMERIC)

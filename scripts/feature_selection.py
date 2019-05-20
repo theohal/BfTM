@@ -65,7 +65,7 @@ def select_features(subtype, threshold):
     feature_importances = feature_importances.sort_values(by='coef_nor_abs', ascending=False)
 
     # select features larger than threshold
-    features = feature_importances[feature_importances['coef_nor_abs'] > threshold]['feature'].values
+    features = feature_importances[feature_importances['coef_nor_abs'] > threshold]
 
     return features
 
@@ -74,9 +74,9 @@ def save_selected_features(th_her2, th_hr, th_tn):
     """
     this function will save selected features into a csv file
     """
-    features_HER2 = select_features('HER2+', th_her2)
-    features_HR = select_features('HR+', th_hr)
-    features_TN = select_features('Triple Neg', th_tn)
+    features_HER2 = select_features('HER2+', 0.2)
+    features_HR = select_features('HR+', 0.4)
+    features_TN = select_features('Triple Neg', 0.4)
 
     # remove the duplicated features
     final_features = list(set(features_HER2.tolist() + features_HR.tolist() + features_TN.tolist()))
